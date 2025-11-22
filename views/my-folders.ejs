@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Folders</title>
+  </head>
+  <body>
+    <% if(myFolders.length === 0 && savedFile.length === 0) { %>
+    <h1>Looks Empty!</h1>
+    <% } else { %>
+    <div>
+      <ul>
+        <% myFolders.forEach(folder => { %>
+        <a href="/folders/<%= folder.id %>"><li><%= folder.name %></li></a>
+        <% }) %>
+      </ul>
+    </div>
+    <% } %>
+    <div><%- include("my-files"); %></div>
+    <div><%- include('upload-form'); %></div>
+    <div><%- include('create-folder'); %></div>
+  </body>
+</html>

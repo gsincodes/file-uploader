@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+  </head>
+  <body>
+    <h1>Welcome Home, <%= loggedUser.name %></h1>
+    <h2><%= myfiles.length %> file uploaded.</h2>
+
+    <% if(myfiles.length > 0) { %>
+    <div>
+      <% myfiles.forEach((file) => { %>
+      <h3><%= file.name %></h3>
+      <% if(file.mimeType.startsWith('image/')) { %>
+      <img
+        src="/uploads/<%= file.name %>"
+        style="border: 1px solid black; max-width: 300px"
+      />
+      <a href="/uploads/<%= file.name %>" download="">Download File</a>
+      <% } }) %>
+    </div>
+    <% } %>
+  </body>
+</html>

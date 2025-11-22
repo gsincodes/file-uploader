@@ -1,0 +1,130 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  name     String?
+  password String
+
+  files           File[]
+  folders         Folder[]
+  userPreferences UserPreferences?
+
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  downloads DownloadHistory[]
+
+  @@map("users")
+}
+
+model File {
+  id           String @id @default(cuid())
+  name         String
+  originalName String
+  storagePath  String
+  mimeType     String
+  size         Int
+  extension    String
+
+  bucket   String  @default("uploads")
+  isPublic Boolean @default(false)
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  folderId String?
+  folder   Folder? @relation(fields: [folderId], references: [id])
+
+  description String?
+
+  downloads DownloadHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([folderId])
+  @@index([mimeType])
+  @@index([createdAt])
+  @@map("files")
+}
+
+model Folder {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  path        String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  parentId String?
+  parent   Folder?  @relation("FolderHierarchy", fields: [parentId], references: [id])
+  children Folder[] @relation("FolderHierarchy")
+
+  files File[]
+
+  isPublic Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  folderId  String?
+
+  @@index([userId])
+  @@index([path])
+  @@map("folders")
+}
+
+model DownloadHistory {
+  id String @id @default(cuid())
+
+  fileId String
+  file   File   @relation(fields: [fileId], references: [id])
+
+  userId String
+  user   User?  @relation(fields: [userId], references: [id])
+
+  downloadedAt DateTime @default(now())
+
+  @@index([fileId])
+  @@index([userId])
+  @@index([downloadedAt])
+  @@map("download_history")
+}
+
+model UserPreferences {
+  id String @id @default(cuid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  defaultBucket String @default("uploads")
+
+  maxFileSize    Int      @default(104857600)
+  allowedFormats String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_preferences")
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
+}

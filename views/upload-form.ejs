@@ -1,0 +1,14 @@
+<h1>Upload a File</h1>
+<form id="uploadForm" method="post" enctype="multipart/form-data">
+  <input type="file" name="file" />
+  <button type="submit">Submit</button>
+</form>
+
+<script>
+  document
+    .getElementById("uploadForm")
+    .addEventListener("submit", function (e) {
+      const currentPath = window.location.pathname;
+      this.action = currentPath + "/upload";
+    });
+</script>

@@ -1,0 +1,17 @@
+<div>
+  <h1>create a folder</h1>
+  <form id="folderForm" method="post">
+    <label for="folderName">Folder Name: </label>
+    <input type="text" id="folderName" name="folderName" />
+    <button type="submit">Submit</button>
+  </form>
+</div>
+
+<script>
+  document
+    .getElementById("folderForm")
+    .addEventListener("submit", function (e) {
+      const currentPath = window.location.pathname;
+      this.action = currentPath + "/create";
+    });
+</script>

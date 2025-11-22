@@ -1,0 +1,9 @@
+<div>
+  <% savedFile.forEach(file => { %>
+    <% if(file.mimeType.startsWith('image/')) { %>
+      <img src="/uploads/<%= file.name %>" style="border: 1px solid black; max-width: 300px" />
+      <a href="/uploads/<%= file.name %>">Download</a>
+    <% } else { %>
+      <li><%= file.name %> <a href="/uploads/<%= file.name %>">Download</a></li>
+    <% }}) %>
+</div>
