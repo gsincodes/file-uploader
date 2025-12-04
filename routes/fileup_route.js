@@ -1,28 +1,38 @@
-const { Router } = require('express')
+import { Router } from 'express';
 const fileup_router = Router();
-const fileup_controller = require('../controllers/fileup_controller');
-const multerMiddleware = require('../config/multer');
+import fileup_controller from '../controllers/fileup_controller.js';
+import multerMiddleware from '../config/multer.js';
 
-fileup_router.get("/", fileup_controller.fileUpHomeGet); //works fine
-fileup_router.get("/sign-up", fileup_controller.signUpFormGet); //works fine
-fileup_router.post("/sign-up", fileup_controller.signUpFormPost); //works fine
-fileup_router.get("/log-in", fileup_controller.logInFormGet); //works fine
-fileup_router.post("/log-in", fileup_controller.logInFormPost); //works fine
-fileup_router.get("/log-out", fileup_controller.logOutGet); //works fine
 
+//LOG-IN LOGIC
+fileup_router.post("/api/log-in", fileup_controller.logInFormPost); //UPDATED
+fileup_router.post("/api/log-out", fileup_controller.logOutPost); //UPDATED
+
+//SIGN-IN LOGIC
+fileup_router.post("/api/sign-up", fileup_controller.signUpFormPost); //UPDATED
+
+//HOME LOGIC
+fileup_router.get("/api/home", fileup_controller.fileUpHomeGet); //UPDATED
+
+//FOLDERS AND FILES. THEIR CREATION AND UPLOAD
+fileup_router.get("/api/folders", fileup_controller.allFilesAndFoldersGet); //UPDATED
+fileup_router.post("/api/folders/upload", multerMiddleware.single('file') , fileup_controller.fileUploadPost); 
+fileup_router.post("/api/folders/create", fileup_controller.createFolderPost);
+
+
+//SUBFOLDERS AND FILES. THEIR CREATION AND UPLOAD
+fileup_router.get("/api/folders/:folderId", fileup_controller.allFilesAndFoldersGet); //UPDATED
+fileup_router.post("/api/folders/:folderId/upload", multerMiddleware.single('file') , fileup_controller.fileUploadPost);
+fileup_router.post("/api/folders/:folderId/create", fileup_controller.createFolderPost);
+
+
+//DEPRECATED
+// fileup_router.get("/sign-up", fileup_controller.signUpFormGet);
+// fileup_router.get("/log-in", fileup_controller.logInFormGet);
 // fileup_router.get("/folders/upload", fileup_controller.uploadFormGet);
-
-fileup_router.get("/folders", fileup_controller.allFilesAndFoldersGet); //works fine
-fileup_router.post("/folders/upload", multerMiddleware.single('file') , fileup_controller.fileUploadPost); //root folder upload
-fileup_router.post("/folders/create", fileup_controller.createFolderPost);// works fine
-
-fileup_router.get("/folders/:folderId", fileup_controller.allFilesAndFoldersGet); //works fine
-fileup_router.post("/folders/:folderId/upload", multerMiddleware.single('file') , fileup_controller.fileUploadPost);
-fileup_router.post("/folders/:folderId/create", fileup_controller.createFolderPost);// works fine
-
 // fileup_router.get("/folders/create", fileup_controller.createFolderGet);
 // fileup_router.get("/folders/:folderId/create", fileup_controller.createFolderGet);
 
 
 
-module.exports = fileup_router;
+export default fileup_router;

@@ -1,8 +1,8 @@
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const bcrypt = require('bcryptjs');
+import passport from 'passport';
+import { Strategy as LocalStrategy } from 'passport-local';
+import bcrypt from 'bcryptjs';
 
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 passport.use(
@@ -51,4 +51,4 @@ passport.deserializeUser(async (id, done) => {
     }
 })
 
-module.exports = passport;
+export default passport;

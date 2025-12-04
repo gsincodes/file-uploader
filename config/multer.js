@@ -1,8 +1,10 @@
-const express = require('express');
-const multer = require('multer');
-const app = express();
-const fs = require('fs');
-const path = require('node:path');
+import multer from 'multer';
+import fs from 'fs';
+import path from 'node:path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -24,7 +26,7 @@ const fileFilter = (req, file, cb) => {
         cb(null, true);
     }
     else {
-        cb(new Error('Invalid file type. Only JPEG, JPG, PNG and GIF are allowed.', false));
+        cb(new Error('Invalid file type. Only JPEG, JPG, PNG and GIF are allowed.'), false);
     }
 };
 
@@ -32,8 +34,8 @@ const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 1024 * 1024 * 5 //5MB
+        fileSize: 1024 * 1024 * 10 //10MB
     }
 });
 
-module.exports = upload;
+export default upload;
