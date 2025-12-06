@@ -1,54 +1,61 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcryptjs';
-
 import { PrismaClient } from '@prisma/client';
+
 const prisma = new PrismaClient();
 
 passport.use(
     new LocalStrategy({
         usernameField: 'email',
         passwordField: 'password'
-    },async (email, password, done) => {
+    }, async (email, password, done) => {
         try {
-            const userInfo = await prisma.user.findFirst({
-                where: {
-                    email: email
-                }
-            })
-
-            if(!userInfo) {
-                return done(null, false, { message: "Incorrect username or email"});
+            // Validate inputs
+            if (!email || !password) {
+                return done(null, false, { message: "Email and password are required" });
             }
-            const match = await bcrypt.compare(password, userInfo.password)
 
-            if(!match) {
-                return done(null, false, { message: "Incorrect Password"});
+            const user = await prisma.user.findUnique({
+                where: { email: email.toLowerCase() }
+            });
+
+            if (!user) {
+                // Generic message for security (don't reveal if email exists)
+                return done(null, false, { message: "Invalid email or password" });
             }
-            return done(null, userInfo);
+
+            const match = await bcrypt.compare(password, user.password);
+
+            if (!match) {
+                // Generic message for security
+                return done(null, false, { message: "Invalid email or password" });
+            }
+
+            return done(null, user);
         }
-        catch(error) {
+        catch (error) {
+            console.error('Authentication error:', error);
             return done(error);
         }
     })
-)
+);
 
-passport.serializeUser((userInfo, done) => {
-    done(null, userInfo.id);
-})
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
 
 passport.deserializeUser(async (id, done) => {
     try {
-        const userInfo = await prisma.user.findFirst({
-            where: {
-                id: id
-            }
-        })
-        done(null, userInfo);
+        const user = await prisma.user.findUnique({
+            where: { id: id }
+        });
+        done(null, user);
     }
-    catch(error) {
+    catch (error) {
+        console.error('Deserialization error:', error);
         done(error);
     }
-})
+});
 
 export default passport;

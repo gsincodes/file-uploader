@@ -13,7 +13,7 @@ function UploadFile() {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         setSelectedFile(file);
-        setError('');
+        setError(null);
     };
 
     const handleDragOver = (e) => {
@@ -31,8 +31,14 @@ function UploadFile() {
         const file = e.dataTransfer.files[0];
         if (file) {
             setSelectedFile(file);
-            setError('');
+            setError(null);
         }
+    };
+
+    const formatFileSize = (bytes) => {
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
+        return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
     };
 
     const handleSubmit = async (e) => {
@@ -44,48 +50,41 @@ function UploadFile() {
         }
 
         setLoading(true);
-        setError('');
+        setError(null);
 
         try {
             const formData = new FormData();
             formData.append('file', selectedFile);
 
-            if(folderId) {
-                formData.append('folderId', folderId);
-            }
+            // Compute URL based on folderId
+            const url = folderId 
+                ? `/api/folders/${folderId}/upload` 
+                : '/api/folders/upload';
 
-            let response;
-            if(folderId) {
-                response = await fetch(`/api/folders/${folderId}/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-            } else {
-                response = await fetch('/api/folders/upload', {
-                    method:'POST',
-                    body: formData
-                });
-            }
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            });
 
             const result = await response.json();
 
-            if(response.ok && result.success) {
-                console.log('File Uploaded successfully', result);
+            if (response.ok && result.success) {
                 folderId ? navigate(`/my-folders/${folderId}`) : navigate('/my-folders');
             } else {
                 setError(result.message || 'File upload failed');
             }
         }
-        catch(error) {
-            console.error(error);
-            setError('Network Error. Please try again');
+        catch (error) {
+            console.error('Upload error:', error);
+            setError('Network error. Please try again.');
         }
         finally {
             setLoading(false);
         }
     };
 
-    if(loading) return (
+    if (loading) return (
         <div className="upload-file-container">
             <div className="loading-state">
                 <div className="loading-spinner"></div>
@@ -94,7 +93,7 @@ function UploadFile() {
         </div>
     );
 
-    if(error) return (
+    if (error) return (
         <div className="upload-file-container">
             <div className="error-state">
                 <div className="error-icon">❌</div>
@@ -160,8 +159,7 @@ function UploadFile() {
                             <div className="file-detail-content">
                                 <h5 className="file-name">{selectedFile.name}</h5>
                                 <p className="file-size">
-                                    {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • 
-                                    {selectedFile.type || ' Unknown type'}
+                                    {formatFileSize(selectedFile.size)} • {selectedFile.type || 'Unknown type'}
                                 </p>
                             </div>
                         </div>

@@ -9,7 +9,7 @@ function SignUp() {
         email: '',
         password: ''
     });
-    const [error, setError] = useState('');
+    const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -22,8 +22,21 @@ function SignUp() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Validation
+        if (!formData.firstname.trim() || !formData.lastname.trim() || 
+            !formData.email.trim() || !formData.password.trim()) {
+            setError('All fields are required');
+            return;
+        }
+
+        if (formData.password.length < 6) {
+            setError('Password must be at least 6 characters');
+            return;
+        }
+
         setLoading(true);
-        setError('');
+        setError(null);
 
         try {
             const response = await fetch("/api/sign-up", {
@@ -38,12 +51,12 @@ function SignUp() {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                console.log('Sign-up successful!', data);
                 navigate('/log-in');
             } else {
                 setError(data.message || 'Sign-up failed');
             }
         } catch (error) {
+            console.error('Sign-up error:', error);
             setError('Network error. Please try again.');
         } finally {
             setLoading(false);
@@ -131,7 +144,7 @@ function SignUp() {
                             required 
                             disabled={loading}
                             className="form-input"
-                            placeholder="Create a password"
+                            placeholder="Create a password (min 6 characters)"
                         />
                     </div>
 

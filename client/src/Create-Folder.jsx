@@ -23,7 +23,7 @@ function CreateFolder() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
+        setError(null);
         
         try {
             let response;

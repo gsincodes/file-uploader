@@ -7,9 +7,8 @@ function LogIn() {
         email: '',
         password: ''
     })
-    const [error, setError] = useState('');
+    const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [rememberMe, setRememberMe] = useState(false);
 
     const navigate = useNavigate();
 
@@ -20,33 +19,37 @@ function LogIn() {
         });
     };
 
-    const handleRememberMe = (e) => {
-        setRememberMe(e.target.checked);
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Validation
+        if (!formData.email.trim() || !formData.password.trim()) {
+            setError('Email and password are required');
+            return;
+        }
+
         setLoading(true);
-        setError('');
+        setError(null);
+        
         try {
             const response = await fetch("/api/log-in", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({...formData, rememberMe}),
+                body: JSON.stringify(formData),
                 credentials: 'include'
             });
 
             const data = await response.json();
 
             if (response.ok && data.success) {
-                console.log('Login successful!', data);
                 navigate('/');
             } else {
                 setError(data.message || 'Login failed');
             }
         } catch (error) {
+            console.error('Login error:', error);
             setError('Network error. Please try again.');
         } finally {
             setLoading(false);
@@ -106,19 +109,6 @@ function LogIn() {
                             className="login-input"
                             placeholder="Enter your password"
                         />
-                    </div>
-
-                    <div className="remember-me">
-                        <input 
-                            type="checkbox" 
-                            id="rememberMe"
-                            checked={rememberMe}
-                            onChange={handleRememberMe}
-                            className="remember-checkbox"
-                        />
-                        <label htmlFor="rememberMe" className="remember-label">
-                            Remember me
-                        </label>
                     </div>
 
                     <button 

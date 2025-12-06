@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from "./Header";
 import Footer from "./Footer";
 import './styles/myfolder.css';
@@ -10,43 +10,37 @@ function MyFolders() {
     const [error, setError] = useState(null);
 
     const { folderId } = useParams();
+    const navigate = useNavigate();
     
     useEffect(() => {
         const fetchData = async () => {
             try {
-                let response;
+                const url = folderId ? `/api/folders/${folderId}` : `/api/folders`;
+                
+                const response = await fetch(url, {
+                    credentials: 'include'
+                });
 
-                if(folderId) {
-                    response = await fetch(`/api/folders/${folderId}`);
-                }
-                else {
-                    response = await fetch(`/api/folders`);
+                if (response.status === 401) {
+                    navigate('/log-in');
+                    return;
                 }
 
-                if(!response.ok) {
-                    throw new Error(`HTTP response code ${response.status}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
                 const result = await response.json();
 
-                console.log("API response -> ", result);
-                console.log('value of sub Folders ->', result.myFolders);
-                console.log('saved File exists: ', !!result.savedFile);
-                console.log('saved File value -> ', result.savedFile);
-
-                if(result.success) {
+                if (result.success) {
                     setDataFetched(result);
                 } else {
-                    if(response.status === 401) {
-                        window.location.href = '/log-in';
-                    } else {
-                        setError(result.message);
-                    }
+                    setError(result.message || 'Failed to fetch data');
                 }
             }
-            catch(error) {
-                console.error(error);
-                setError('Failed to Fetch Data');
+            catch (error) {
+                console.error('Fetch error:', error);
+                setError('Failed to fetch data');
             }
             finally {
                 setLoading(false);
@@ -54,14 +48,30 @@ function MyFolders() {
         }
 
         fetchData();
-    }, [folderId]);
+    }, [folderId, navigate]);
 
-    if(loading) return <div className="loading-state">Loading...</div>
-    if(error) return (
-        <div className="error-state">
-            <div className="error-message">Error: {error}</div>
+    if (loading) return (
+        <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Loading...</p>
         </div>
-    )
+    );
+
+    if (error) return (
+        <div className="error-container">
+            <div className="error-message">Error: {error}</div>
+            <button 
+                onClick={() => window.location.reload()}
+                className="retry-button"
+            >
+                Try Again
+            </button>
+        </div>
+    );
+
+    const hasFolders = dataFetched?.myFolders && dataFetched.myFolders.length > 0;
+    const hasFiles = dataFetched?.savedFile && dataFetched.savedFile.length > 0;
+    const isEmpty = !hasFolders && !hasFiles;
 
     return (
         <div className="myfolders-container">
@@ -88,22 +98,22 @@ function MyFolders() {
                     <div className="breadcrumb">
                         <Link to="/my-folders" className="breadcrumb-item">Home</Link>
                         <span className="breadcrumb-separator">/</span>
-                        <span className="breadcrumb-item">Current Folder</span>
+                        <span className="breadcrumb-item">{dataFetched?.currentFolder?.name}</span>
                     </div>
                 )}
 
-                {/* Content Grid */}
-                {!dataFetched || (!dataFetched.myFolders || dataFetched.myFolders.length === 0) && (!dataFetched.savedFile || dataFetched.savedFile.length === 0) ? ( 
+                {/* Empty State */}
+                {isEmpty ? (
                     <div className="empty-state">
-                        <h2 className="empty-title">No Files Yet</h2>
+                        <h2 className="empty-title">No Content Yet</h2>
                         <p className="empty-message">
-                            {folderId ? "This folder is empty." : "You haven't uploaded any files yet."}
+                            {folderId ? "This folder is empty." : "You haven't created any folders or uploaded files yet."}
                         </p>
                     </div>
                 ) : (
                     <div className="content-grid">
                         {/* Folders */}
-                        {dataFetched.myFolders && dataFetched.myFolders.length > 0 && 
+                        {hasFolders && 
                             dataFetched.myFolders.map((folder) => (
                                 <div key={folder.id} className="folder-card">
                                     <Link to={`/my-folders/${folder.id}`} className="folder-link">
@@ -115,23 +125,23 @@ function MyFolders() {
                         }
 
                         {/* Files */}
-                        {dataFetched.savedFile && dataFetched.savedFile.length > 0 && 
+                        {hasFiles && 
                             dataFetched.savedFile.map((file) => (
-                                <div key={file.id || file.name} className="file-card">
+                                <div key={file.id} className="file-card">
                                     <div className="file-icon">
                                         {file.mimeType?.startsWith('image/') ? '🖼️' : '📄'}
                                     </div>
                                     <h3 className="file-name">{file.originalName}</h3>
                                     
-                                    {file.mimeType?.startsWith('image/') ? (
+                                    {file.mimeType?.startsWith('image/') && (
                                         <div className="file-preview">
                                             <img 
                                                 src={`/uploads/${file.name}`} 
-                                                alt={file.name} 
+                                                alt={file.originalName} 
                                                 className="preview-image"
                                             />
                                         </div>
-                                    ) : null}
+                                    )}
                                     
                                     <div className="file-actions">
                                         <a 
@@ -139,7 +149,7 @@ function MyFolders() {
                                             download
                                             className="download-button"
                                         >
-                                            Download File
+                                            Download
                                         </a>
                                     </div>
                                 </div>
@@ -150,25 +160,18 @@ function MyFolders() {
 
                 {/* Action Buttons */}
                 <div className="action-buttons">
-                    {folderId ? (
-                        <>
-                            <Link to={`/my-folders/${folderId}/create`} className="action-button create">
-                                Create Folder
-                            </Link>
-                            <Link to={`/my-folders/${folderId}/upload`} className="action-button upload">
-                                Upload Files
-                            </Link>
-                        </>
-                    ) : (
-                        <>
-                            <Link to="/my-folders/create" className="action-button create">
-                                Create Folder
-                            </Link>
-                            <Link to="/my-folders/upload" className="action-button upload">
-                                Upload Files
-                            </Link>
-                        </>
-                    )}
+                    <Link 
+                        to={folderId ? `/my-folders/${folderId}/create` : "/my-folders/create"} 
+                        className="action-button create"
+                    >
+                        📁 Create Folder
+                    </Link>
+                    <Link 
+                        to={folderId ? `/my-folders/${folderId}/upload` : "/my-folders/upload"} 
+                        className="action-button upload"
+                    >
+                        📤 Upload Files
+                    </Link>
                 </div>
             </div>
             <Footer />

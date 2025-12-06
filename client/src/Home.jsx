@@ -1,30 +1,25 @@
 import Header from "./Header";
 import Footer from "./Footer";
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import './styles/home.css'; // Import the CSS file
+import { Link, useNavigate } from 'react-router-dom';
+import './styles/home.css';
 
-function HomeContent() {
-    const [user, setUser] = useState('xyz');
+function Home() {
+    const [user, setUser] = useState('');
     const [dataFetched, setDataFetched] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                console.log("starting to fetch from /api/home...");
                 const response = await fetch('/api/home', {
                     credentials: 'include'
                 });
 
-                console.log("Response Status", response.status);
-                console.log("Response ok: ", response.ok);
-                console.log('response->', response);
-
                 if (response.status === 401) {
-                    console.log('User not authenticated, redirecting to login...');
-                    window.location.href = '/log-in';
+                    navigate('/log-in');
                     return;
                 }
 
@@ -34,29 +29,17 @@ function HomeContent() {
 
                 const result = await response.json();
 
-                console.log("API response -> ", result);
-                console.log("typeof logged User -> ", typeof result.loggedUser);
-                console.log('value of loggedUser ->', result.loggedUser);
-                console.log('myfiles exists: ', !!result.myFiles);
-                console.log('myfiles value -> ', result.myFiles);
-
-                console.log("API response", result);
-
                 if(result.success) {
-                    setUser(result.loggedUser.name);
-                    setDataFetched(result.myFiles);
+                    setUser(result.loggedUser?.name || 'User');
+                    setDataFetched(result.myFiles || []);
                 }
                 else {
-                    setError(result.message);
+                    setError(result.message || 'Failed to load data');
                 }
             }
             catch(error) {
-                console.error(error);
-                if (error.message.includes('401')) {
-                    window.location.href = '/log-in';
-                } else {
-                    setError('Failed to fetch data. Please try again.');
-                }
+                console.error('Fetch error:', error);
+                setError('Failed to fetch data. Please try again.');
             }
             finally {
                 setLoading(false);
@@ -64,11 +47,12 @@ function HomeContent() {
         };
 
         fetchData();
-    }, []);
+    }, [navigate]);
 
     if (loading) return (
         <div className="loading-container">
-            Loading...
+            <div className="loading-spinner"></div>
+            <p>Loading...</p>
         </div>
     );
 
@@ -103,9 +87,7 @@ function HomeContent() {
                 {/* Files Section */}
                 <div className="files-section">
                     <div className="files-header">
-                        <h1 className="files-title">
-                            MY FILES
-                        </h1>
+                        <h1 className="files-title">MY FILES</h1>
                         <Link to='/my-folders'>
                             <button className="folders-button">
                                 📁 My Folders
@@ -113,10 +95,10 @@ function HomeContent() {
                         </Link>
                     </div>
                     
-                    {!dataFetched || dataFetched.length === 0 ? (
+                    {dataFetched.length === 0 ? (
                         <div className="empty-state">
                             <p className="empty-message">No files found</p>
-                            <Link to='/upload'>
+                            <Link to='/my-folders/upload'>
                                 <button className="upload-button">
                                     📤 Upload Your First File
                                 </button>
@@ -127,7 +109,7 @@ function HomeContent() {
                             {dataFetched.map(file => {
                                 const isImage = file.mimeType?.startsWith('image/');
                                 return (
-                                    <div key={file.id || file.name} className="file-card">
+                                    <div key={file.id} className="file-card">
                                         <div className="file-header">
                                             <div className={`file-icon ${isImage ? '' : 'document'}`}>
                                                 {isImage ? '🖼️' : '📄'}
@@ -141,7 +123,7 @@ function HomeContent() {
                                             <div className="image-preview">
                                                 <img 
                                                     src={`/uploads/${file.name}`} 
-                                                    alt={file.name} 
+                                                    alt={file.originalName}
                                                     className="preview-image"
                                                 />
                                             </div>
@@ -177,7 +159,7 @@ function HomeContent() {
                         <p className="action-description">Organize your files in folders</p>
                     </Link>
                     
-                    <Link to='/upload' className="action-card">
+                    <Link to='/my-folders/upload' className="action-card">
                         <h3 className="action-title">📤 Upload Files</h3>
                         <p className="action-description">Add new files to your storage</p>
                     </Link>
@@ -188,4 +170,4 @@ function HomeContent() {
     );
 }
 
-export default HomeContent;
+export default Home;

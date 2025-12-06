@@ -1,12 +1,12 @@
 import passport from 'passport';
 import bcrypt from 'bcryptjs';
-
 import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
 import path from 'node:path';
 import { validateFolderName } from '../utils/validators.js';
 
-async function fileUpHomeGet(req, res) { // UPDATED
+const prisma = new PrismaClient();
+
+async function fileUpHomeGet(req, res) {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ 
             success: false, 
@@ -16,17 +16,14 @@ async function fileUpHomeGet(req, res) { // UPDATED
     }
 
     try {
-
-        const loggedUser = await prisma.user.findFirst({
-            where: {
-                id: req.user.id,
-            },
+        const loggedUser = await prisma.user.findUnique({
+            where: { id: req.user.id },
             select: {
                 id: true,
                 email: true,
                 name: true
             }
-        })
+        });
 
         if (!loggedUser) {
             return res.status(404).json({
@@ -36,22 +33,28 @@ async function fileUpHomeGet(req, res) { // UPDATED
         }
 
         const myFiles = await prisma.file.findMany({
-            where: {
-                userId: req.user.id
-            }
-        })
+            where: { userId: req.user.id },
+            take: 50 // Limit to 50 files
+        });
 
-        return res.json({success: true, loggedUser:loggedUser ,myFiles: myFiles, message: "Fetched Data Successfully"}); 
+        return res.json({
+            success: true, 
+            loggedUser: loggedUser,
+            myFiles: myFiles,
+            message: "Fetched Data Successfully"
+        }); 
     }
     catch(error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: "Error Fetching Data from Home Route"});
+        console.error('Error in fileUpHomeGet:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Error fetching data"
+        });
     }
 }
 
-async function signUpFormPost(req, res, next) { // UPDATED
+async function signUpFormPost(req, res, next) {
     try {
-
         if (!req.body) {
             return res.status(400).json({
                 success: false,
@@ -68,71 +71,83 @@ async function signUpFormPost(req, res, next) { // UPDATED
             });
         }
 
+        // Check if user already exists
+        const existingUser = await prisma.user.findUnique({
+            where: { email: email.toLowerCase() }
+        });
+
+        if (existingUser) {
+            return res.status(409).json({
+                success: false,
+                message: 'Email already registered'
+            });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await prisma.user.create({
             data: {
-                name: `${firstname} ${lastname}`,
-                email: email,
+                name: `${firstname.trim()} ${lastname.trim()}`,
+                email: email.toLowerCase().trim(),
                 password: hashedPassword
             }
-        })
-        console.log("Sign-up completed.");
+        });
+
         return res.status(201).json({
             success: true,
             message: 'Sign-up successful',
             user: {
                 id: newUser.id,
-                username: newUser.name,
+                name: newUser.name,
                 email: newUser.email
             }
         });
     }
     catch(error) {
-        console.log("Some error occured while signing up.");
-        console.error(error);
-        return next(error);
+        console.error('Sign-up error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Sign-up failed'
+        });
     }
 }
 
-function logInFormPost(req, res, next) { //UPDATED
+function logInFormPost(req, res, next) {
     passport.authenticate("local", (err, user, info) => {
         if(err) {
             return res.status(500).json({
                 success: false,
-                message: 'internal server error'
+                message: 'Internal server error'
             });
         }
         
         if(!user) {
             return res.status(401).json({
                 success: false,
-                message: info.message || 'Invalid Credentials'
-            })
+                message: info.message || 'Invalid credentials'
+            });
         }
 
         req.logIn(user, (err) => {
             if(err) {
                 return res.status(500).json({
                     success: false,
-                    message: 'Login Failed'
+                    message: 'Login failed'
                 });
             }
 
-            console.log(`Login Successful! Welcome ${user.firstname} ${user.lastname}`);
             return res.status(200).json({
                 success: true,
-                message: 'Login Successful',
+                message: 'Login successful',
                 user: {
                     id: user.id,
-                    username: user.firstname
+                    name: user.name
                 }
-            })
-        })
+            });
+        });
     })(req, res, next);
-};
+}
 
-async function logOutPost(req, res, next) { // UPDATED
-
+async function logOutPost(req, res, next) {
     req.logout((error) => {
         if(error) {
             return res.status(500).json({ 
@@ -140,7 +155,6 @@ async function logOutPost(req, res, next) { // UPDATED
                 message: 'Logout failed' 
             });
         }
-        console.log('✅ Passport logout successful');
 
         req.session.destroy((err) => {
             if (err) {
@@ -153,8 +167,6 @@ async function logOutPost(req, res, next) { // UPDATED
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict'
             });
-
-            console.log('✅ Cookie cleared');
     
             return res.json({ 
                 success: true, 
@@ -164,8 +176,7 @@ async function logOutPost(req, res, next) { // UPDATED
     });
 }
 
-async function allFilesAndFoldersGet(req, res)  { //UPDATED
-
+async function allFilesAndFoldersGet(req, res) {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ 
             success: false, 
@@ -177,76 +188,76 @@ async function allFilesAndFoldersGet(req, res)  { //UPDATED
     try {
         const folderId = req.params.folderId;
         
-        console.log('folder ID -> ',folderId);
-        // sub folders
         if(folderId) {
-            // checks if the folder with folderId exists
-            const currentFolder = await prisma.folder.findFirst({
-                where: {
-                    id: folderId,
-                    userId: req.user.id
-                }
-            })
+            // Get specific folder
+            const currentFolder = await prisma.folder.findUnique({
+                where: { id: folderId }
+            });
 
-            if(!currentFolder) {
+            if(!currentFolder || currentFolder.userId !== req.user.id) {
                 return res.status(404).json({
                     success: false,
-                    message: "Folder not Found"
+                    message: "Folder not found"
                 });
             }
-            console.log('Current Folder Name -> ',currentFolder.name);
 
-            //gets all its sub folders
             const subFolders = await prisma.folder.findMany({
                 where: {
                     parentId: currentFolder.id,
                     userId: req.user.id
                 }
-            })
+            });
 
-            //files in the folder
             const savedFile = await prisma.file.findMany({
                 where: {
                     folderId: currentFolder.id,
                     userId: req.user.id
-                }
-            })
+                },
+                take: 100
+            });
 
-
-            res.json({ success: true, myFolders: Array.isArray(subFolders)? subFolders : [], savedFile: Array.isArray(savedFile)? savedFile : [],
+            return res.json({ 
+                success: true, 
+                myFolders: subFolders, 
+                savedFile: savedFile,
                 currentFolder: currentFolder
             });
         }
-
-        // root folder
         else {
+            // Get root folders and files
             const myFolders = await prisma.folder.findMany({
                 where: {
                     userId: req.user.id,
                     parentId: null
                 }
-            })
+            });
 
             const savedFile = await prisma.file.findMany({
                 where: {
                     folderId: null,
                     userId: req.user.id
-                }
-            })
+                },
+                take: 100
+            });
 
-            const folders = Array.isArray(myFolders) ? myFolders : [];
-
-            res.json({ success: true, myFolders: folders, savedFile: Array.isArray(savedFile)? savedFile : [], currentFolder: null});
+            return res.json({ 
+                success: true, 
+                myFolders: myFolders, 
+                savedFile: savedFile, 
+                currentFolder: null
+            });
         }
     }
     catch (error) {
-        console.error("No Folder Found", error);
-        res.status(500).json({ success: false, message : "Internal Server Error"});
+        console.error("Error fetching folders:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Internal server error"
+        });
     }
 }
 
-async function createFolderPost(req, res) { //DONE
-
+async function createFolderPost(req, res) {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ 
             success: false, 
@@ -270,16 +281,15 @@ async function createFolderPost(req, res) { //DONE
         const sanitizedName = validation.sanitized;
 
         if(parentFolderId) {
-
             const parentFolder = await prisma.folder.findUnique({
-                where: {
-                    id: parentFolderId,
-                    userId: req.user.id
-                }
-            })
+                where: { id: parentFolderId }
+            });
 
-            if(!parentFolder) {
-                return res.status(404).json({ success: false, message: "Parent Folder not found"});
+            if(!parentFolder || parentFolder.userId !== req.user.id) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: "Parent folder not found"
+                });
             }
 
             const existingFolder = await prisma.folder.findFirst({
@@ -297,32 +307,28 @@ async function createFolderPost(req, res) { //DONE
                 });
             }
 
-            const path = parentFolder.path + "/" + sanitizedName;
+            const newPath = parentFolder.path + "/" + sanitizedName;
 
             const folder = await prisma.folder.create({
                 data: {
                     name: sanitizedName,
-                    path: path,
-                    user: {
-                        connect: { id: req.user.id }
-                    },
-                    parent: {
-                        connect: {
-                            id: parentFolder.id //id: parentId
-                        }
-                    }
+                    path: newPath,
+                    userId: req.user.id,
+                    parentId: parentFolder.id
                 }
-            })
+            });
 
-            return res.status(201).json({success: true ,folder: folder});
+            return res.status(201).json({
+                success: true,
+                folder: folder
+            });
         }
         else {
-
             const existingFolder = await prisma.folder.findFirst({
                 where: {
                     name: sanitizedName,
                     userId: req.user.id,
-                    parentId: null // Root folder
+                    parentId: null
                 }
             });
 
@@ -336,26 +342,28 @@ async function createFolderPost(req, res) { //DONE
             const folder = await prisma.folder.create({
                 data: {
                     name: sanitizedName,
-                    path: "/"+ sanitizedName,
-                    user: {
-                        connect: { id: req.user.id }
-                    },
+                    path: "/" + sanitizedName,
+                    userId: req.user.id,
                     parentId: null
                 }
-            })
+            });
 
-            return res.status(201).json({success: true ,folder: folder});
+            return res.status(201).json({
+                success: true,
+                folder: folder
+            });
         }
     }
     catch (error) {
-        console.error("Error creating folders", error);
-        return res.status(500).json({ success: false, message: "Internal server error"});
+        console.error("Error creating folder:", error);
+        return res.status(500).json({ 
+            success: false, 
+            message: "Internal server error"
+        });
     }
-
 }
 
-async function fileUploadPost(req, res) { //DONE
-
+async function fileUploadPost(req, res) {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ 
             success: false, 
@@ -365,11 +373,13 @@ async function fileUploadPost(req, res) { //DONE
     }
 
     if(!req.file) {
-        return res.status(400).json({success: false, message: "Please select a file to upload" });
+        return res.status(400).json({
+            success: false, 
+            message: "Please select a file to upload"
+        });
     }
     
     try {
-
         const folderStorageId = req.params.folderId;
 
         const savedFile = await prisma.file.create({
@@ -383,36 +393,22 @@ async function fileUploadPost(req, res) { //DONE
                 extension: path.extname(req.file.originalname),
                 folderId: folderStorageId || null
             }
-        })
+        });
 
-        console.log('file uploaded successfully');
-        return res.json({success: true, message: 'File Uploaded Successfully!', file: savedFile});
+        return res.json({
+            success: true, 
+            message: 'File uploaded successfully', 
+            file: savedFile
+        });
     }
     catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: 'Failed to upload File'});
+        console.error('File upload error:', error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Failed to upload file'
+        });
     }
 }
-
-// async function signUpFormGet(req, res) { 
-//     res.render("sign-up-form");
-// }
-
-// async function logInFormGet(req, res) {
-//     res.render("log-in-form");
-// }
-
-// async function uploadFormGet(req, res) {
-//     if(!req.isAuthenticated()){
-//         return res.redirect("/log-in");
-//     }
-//     res.render("upload-form");
-// }
-
-// async function createFolderGet(req, res) {
-//     res.render("create-folder");
-// }
-
 
 export default {
     fileUpHomeGet,
@@ -422,4 +418,4 @@ export default {
     fileUploadPost,
     allFilesAndFoldersGet,
     createFolderPost
-}
+};
