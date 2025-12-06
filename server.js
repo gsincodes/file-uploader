@@ -15,6 +15,7 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 const app = express();
+app.set('trust proxy', 1); 
 
 // Basic security
 app.use(helmet({
@@ -35,8 +36,8 @@ app.use(express.urlencoded({ extended: true }));
 // Session
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret-change-this',
-  resave: false,
-  saveUninitialized: false,
+  resave: true,
+  saveUninitialized: true,
   cookie: {
     secure: NODE_ENV === 'production',
     httpOnly: true,
