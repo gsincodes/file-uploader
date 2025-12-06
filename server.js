@@ -22,11 +22,12 @@ app.use(helmet({
 }));
 
 // CORS for development
-app.use(cors({
-  origin: FRONTEND_URL,
-  credentials: true
-}));
-
+if (process.env.NODE_ENV !== 'production') {
+  app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+  }));
+}
 // Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
