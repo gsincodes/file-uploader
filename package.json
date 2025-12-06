@@ -12,7 +12,8 @@
     "start": "node server.js",
     "build": "cd client && npm run build",
     "prisma:generate": "npx prisma generate",
-    "render-postbuild": "npm run prisma:generate"
+    "prisma:migrate": "npx prisma migrate deploy",
+    "render-postbuild": "npm run prisma:generate && npm run prisma:migrate"
   },
   "keywords": [
     "file-uploader",
