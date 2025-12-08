@@ -2,7 +2,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './styles/home.css';
+import './styles/home2.css';
 
 function Home() {
     const [user, setUser] = useState('');
@@ -71,9 +71,9 @@ function Home() {
     );
 
     return (
-        <div className="home-container">
+        <div className="home-page">
             <Header />
-            <div className="home-content-wrapper">
+            <div className="home-content">
                 {/* Welcome Section */}
                 <div className="welcome-section">
                     <h1 className="welcome-title">
@@ -87,12 +87,7 @@ function Home() {
                 {/* Files Section */}
                 <div className="files-section">
                     <div className="files-header">
-                        <h1 className="files-title">MY FILES</h1>
-                        <Link to='/my-folders'>
-                            <button className="folders-button">
-                                📁 My Folders
-                            </button>
-                        </Link>
+                        <h1 className="files-title">My Files</h1>
                     </div>
                     
                     {dataFetched.length === 0 ? (
@@ -100,7 +95,7 @@ function Home() {
                             <p className="empty-message">No files found</p>
                             <Link to='/my-folders/upload'>
                                 <button className="upload-button">
-                                    📤 Upload Your First File
+                                    Upload Your First File
                                 </button>
                             </Link>
                         </div>
@@ -111,9 +106,6 @@ function Home() {
                                 return (
                                     <div key={file.id} className="file-card">
                                         <div className="file-header">
-                                            <div className={`file-icon ${isImage ? '' : 'document'}`}>
-                                                {isImage ? '🖼️' : '📄'}
-                                            </div>
                                             <h3 className="file-name" title={file.originalName}>
                                                 {file.originalName}
                                             </h3>

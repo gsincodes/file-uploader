@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import './styles/createfolder.css';
+import './styles/createfolder2.css';
+import Header from './Header';
+import Footer from './Footer';
 
 function CreateFolder() {
     const { folderId } = useParams();
@@ -94,49 +96,53 @@ function CreateFolder() {
     );
 
     return (
-        <div className="create-folder-container">
-            <div className="create-folder-card">
-                <div className="create-folder-header">
-                    <span className="create-folder-icon">📁</span>
-                    <h1 className="create-folder-title">Create a Folder</h1>
-                    <p className="create-folder-subtitle">
-                        {folderId ? "Create a new subfolder" : "Create a new folder in root"}
-                    </p>
-                </div>
-                
-                <form className="create-folder-form" onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="folderName" className="form-label">Folder Name</label>
-                        <input 
-                            type="text" 
-                            id="folderName" 
-                            name="folderName" 
-                            value={formData.folderName} 
-                            onChange={handleChange} 
-                            disabled={loading}
-                            className="form-input"
-                            placeholder="Enter folder name"
-                            required
-                        />
+        <>
+            <Header />
+            <div className="create-folder-container">
+                <div className="create-folder-card">
+                    <div className="create-folder-header">
+                        <span className="create-folder-icon">📁</span>
+                        <h1 className="create-folder-title">Create a Folder</h1>
+                        <p className="create-folder-subtitle">
+                            {folderId ? "Create a new subfolder" : "Create a new folder in root"}
+                        </p>
                     </div>
+                    
+                    <form className="create-folder-form" onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label htmlFor="folderName" className="form-label">Folder Name</label>
+                            <input 
+                                type="text" 
+                                id="folderName" 
+                                name="folderName" 
+                                value={formData.folderName} 
+                                onChange={handleChange} 
+                                disabled={loading}
+                                className="form-input"
+                                placeholder="Enter folder name"
+                                required
+                            />
+                        </div>
 
-                    <button 
-                        type="submit" 
-                        disabled={loading}
-                        className="submit-button"
+                        <button 
+                            type="submit" 
+                            disabled={loading}
+                            className="submit-button"
+                        >
+                            {loading ? 'Creating Folder...' : 'Create Folder'}
+                        </button>
+                    </form>
+
+                    <Link 
+                        to={folderId ? `/my-folders/${folderId}` : '/my-folders'} 
+                        className="back-link"
                     >
-                        {loading ? 'Creating Folder...' : 'Create Folder'}
-                    </button>
-                </form>
-
-                <Link 
-                    to={folderId ? `/my-folders/${folderId}` : '/my-folders'} 
-                    className="back-link"
-                >
-                    ← Back to Folders
-                </Link>
+                        ← Back to Folders
+                    </Link>
+                </div>
             </div>
-        </div>
+            <Footer />
+        </>
     )
 }
 

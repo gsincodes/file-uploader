@@ -1,0 +1,14 @@
+@font-face {
+    font-family: 'Sf pro';
+    src: url('../fonts/SFPRODISPLAYREGULAR.OTF') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+#footer {
+    background-color: #ced8eca1;
+    color: #000000;
+    padding: 20px 0;
+    text-align: center;
+    font-family: 'Sf pro', Arial, Helvetica, sans-serif;
+}

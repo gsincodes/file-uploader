@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from 'react';
-import './styles/login.css';
+import './styles/login2.css';
+import Header from './Header';
+import Footer from './Footer';
 
 function LogIn() {
     const [formData, setFormData] = useState({
@@ -66,68 +68,72 @@ function LogIn() {
     );
 
     return (
-        <div className="login-container">
-            <div className="login-card">
-                <div className="login-header">
-                    <span className="login-icon">🔐</span>
-                    <h1 className="login-title">Please Log In</h1>
-                    <p className="login-subtitle">Enter your credentials to continue</p>
-                </div>
-                
-                {error && (
-                    <div className="login-error">
-                        {error}
-                    </div>
-                )}
-                
-                <form className="login-form" onSubmit={handleSubmit}>
-                    <div className="login-form-group">
-                        <label htmlFor="email" className="login-form-label">Email</label>
-                        <input 
-                            id="email" 
-                            name="email" 
-                            type="email" 
-                            value={formData.email} 
-                            onChange={handleChange} 
-                            disabled={loading} 
-                            required
-                            className="login-input"
-                            placeholder="Enter your email"
-                        />
-                    </div>
+        <>
+            <Header />
+                <div className="login-container">
+                    <div className="login-card">
+                        <div className="login-header">
+                            <span className="login-icon">🔐</span>
+                            <h1 className="login-title">Please Log In</h1>
+                            <p className="login-subtitle">Enter your credentials to continue</p>
+                        </div>
+                        
+                        {error && (
+                            <div className="login-error">
+                                {error}
+                            </div>
+                        )}
+                        
+                        <form className="login-form" onSubmit={handleSubmit}>
+                            <div className="login-form-group">
+                                <label htmlFor="email" className="login-form-label">Email</label>
+                                <input 
+                                    id="email" 
+                                    name="email" 
+                                    type="email" 
+                                    value={formData.email} 
+                                    onChange={handleChange} 
+                                    disabled={loading} 
+                                    required
+                                    className="login-input"
+                                    placeholder="Enter your email"
+                                />
+                            </div>
 
-                    <div className="login-form-group">
-                        <label htmlFor="password" className="login-form-label">Password</label>
-                        <input 
-                            id="password" 
-                            name="password" 
-                            type="password" 
-                            value={formData.password} 
-                            onChange={handleChange} 
-                            required 
-                            disabled={loading}
-                            className="login-input"
-                            placeholder="Enter your password"
-                        />
-                    </div>
+                            <div className="login-form-group">
+                                <label htmlFor="password" className="login-form-label">Password</label>
+                                <input 
+                                    id="password" 
+                                    name="password" 
+                                    type="password" 
+                                    value={formData.password} 
+                                    onChange={handleChange} 
+                                    required 
+                                    disabled={loading}
+                                    className="login-input"
+                                    placeholder="Enter your password"
+                                />
+                            </div>
 
-                    <button 
-                        type="submit" 
-                        disabled={loading}
-                        className="login-submit-button"
-                    >
-                        {loading ? 'Logging in...' : 'Log In'}
-                    </button>
-                </form>
-                
-                <div className="signup-link-container">
-                    <p className="signup-text">Don't have an account?</p>
-                    <Link to="/sign-up" className="signup-button">
-                        Sign Up
-                    </Link>
+                            <button 
+                                type="submit" 
+                                disabled={loading}
+                                className="login-submit-button"
+                            >
+                                {loading ? 'Logging in...' : 'Log In'}
+                            </button>
+                        </form>
+                        
+                        <div className="signup-link-container">
+                            <p className="signup-text">Don't have an account?</p>
+                            <Link to="/sign-up" className="signup-button">
+                                Sign Up
+                            </Link>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            <Footer />
+        </>
     )
 }
 

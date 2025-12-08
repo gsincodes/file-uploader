@@ -1,0 +1,38 @@
+@font-face {
+    font-family: 'Sf pro';
+    src: url('../fonts/SFPRODISPLAYREGULAR.OTF') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+#header {
+    background-color: #ced8eca1;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: rgb(0, 0, 0);
+    font-family: 'Sf pro', Arial, Helvetica, sans-serif;
+}
+
+#logo h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #000000;
+    font-weight: 300;
+}
+
+#nav-links {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
+    font-size: clamp(0.75rem, 0.5357rem + 1.0714vw, 1.5rem);
+}
+
+#nav-links .nav-item a {
+    color: rgb(0, 0, 0);
+    text-decoration: none;
+    /* font-size: 18px; */
+}

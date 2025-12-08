@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from "./Header";
 import Footer from "./Footer";
-import './styles/myfolder.css';
+import './styles/myfolder2.css';
 
 function MyFolders() {
     const [dataFetched, setDataFetched] = useState(null);

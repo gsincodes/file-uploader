@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import './styles/uploadfile.css';
+import './styles/uploadfile2.css';
+import Header from './Header';
+import Footer from './Footer';
 
 function UploadFile() {
     const { folderId } = useParams();
@@ -109,81 +111,85 @@ function UploadFile() {
     );
 
     return (
-        <div className="upload-file-container">
-            <div className="upload-card">
-                <div className="upload-header">
-                    <span className="upload-icon">📤</span>
-                    <h1 className="upload-title">Upload a File</h1>
-                    <p className="upload-subtitle">
-                        {folderId ? "Upload to this folder" : "Upload to root"}
-                    </p>
-                </div>
-                
-                <div 
-                    className={`upload-zone ${dragOver ? 'drag-over' : ''}`}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    onClick={() => document.getElementById('fileInput').click()}
-                >
-                    <span className="upload-icon-large">📁</span>
-                    <h3 className="upload-text">
-                        {dragOver ? 'Drop file here' : 'Drag & drop or click to browse'}
-                    </h3>
-                    <p className="upload-hint">
-                        Supports images, documents, PDFs, and more
-                    </p>
-                    <button 
-                        type="button" 
-                        className="browse-button"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            document.getElementById('fileInput').click();
-                        }}
-                    >
-                        Browse Files
-                    </button>
-                    <input 
-                        type="file" 
-                        id="fileInput"
-                        className="file-input"
-                        onChange={handleFileChange}
-                    />
-                </div>
-
-                {selectedFile && (
-                    <div className="selected-file-info">
-                        <h4 className="file-info-title">Selected File</h4>
-                        <div className="file-details">
-                            <span className="file-icon">📄</span>
-                            <div className="file-detail-content">
-                                <h5 className="file-name">{selectedFile.name}</h5>
-                                <p className="file-size">
-                                    {formatFileSize(selectedFile.size)} • {selectedFile.type || 'Unknown type'}
-                                </p>
-                            </div>
+        <>
+            <Header />
+                <div className="upload-file-container">
+                    <div className="upload-card">
+                        <div className="upload-header">
+                            <span className="upload-icon">📤</span>
+                            <h1 className="upload-title">Upload a File</h1>
+                            <p className="upload-subtitle">
+                                {folderId ? "Upload to this folder" : "Upload to root"}
+                            </p>
                         </div>
+                        
+                        <div 
+                            className={`upload-zone ${dragOver ? 'drag-over' : ''}`}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                            onClick={() => document.getElementById('fileInput').click()}
+                        >
+                            <span className="upload-icon-large">📁</span>
+                            <h3 className="upload-text">
+                                {dragOver ? 'Drop file here' : 'Drag & drop or click to browse'}
+                            </h3>
+                            <p className="upload-hint">
+                                Supports images, documents, PDFs, and more
+                            </p>
+                            <button 
+                                type="button" 
+                                className="browse-button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    document.getElementById('fileInput').click();
+                                }}
+                            >
+                                Browse Files
+                            </button>
+                            <input 
+                                type="file" 
+                                id="fileInput"
+                                className="file-input"
+                                onChange={handleFileChange}
+                            />
+                        </div>
+
+                        {selectedFile && (
+                            <div className="selected-file-info">
+                                <h4 className="file-info-title">Selected File</h4>
+                                <div className="file-details">
+                                    <span className="file-icon">📄</span>
+                                    <div className="file-detail-content">
+                                        <h5 className="file-name">{selectedFile.name}</h5>
+                                        <p className="file-size">
+                                            {formatFileSize(selectedFile.size)} • {selectedFile.type || 'Unknown type'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit}>
+                            <button 
+                                type="submit" 
+                                disabled={!selectedFile || loading}
+                                className="submit-button"
+                            >
+                                {loading ? 'Uploading...' : 'Upload File'}
+                            </button>
+                        </form>
+
+                        <Link 
+                            to={folderId ? `/my-folders/${folderId}` : '/my-folders'} 
+                            className="back-link"
+                        >
+                            ← Back to Folders
+                        </Link>
                     </div>
-                )}
-
-                <form onSubmit={handleSubmit}>
-                    <button 
-                        type="submit" 
-                        disabled={!selectedFile || loading}
-                        className="submit-button"
-                    >
-                        {loading ? 'Uploading...' : 'Upload File'}
-                    </button>
-                </form>
-
-                <Link 
-                    to={folderId ? `/my-folders/${folderId}` : '/my-folders'} 
-                    className="back-link"
-                >
-                    ← Back to Folders
-                </Link>
-            </div>
-        </div>
+                </div>
+            <Footer />
+        </>
     )
 }
 
