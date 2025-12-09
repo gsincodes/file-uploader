@@ -33,6 +33,55 @@ html,body,#root, .myfolders-page, .myfolders-content {
     color: #333;
 }
 
+.current-folder {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    color: #666;
+}
+
+.current-folder-title {
+    font-weight: bold;
+}
+
+.folder-path {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #999;
+}
+
+.breadcrumb {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.breadcrumb-item {
+    display: inline-block;
+    margin: 0 5px;
+    color: #333;
+}
+
+.breadcrumb-separator {
+    margin: 0 5px;
+    color: #999;
+}
+
+.empty-state {
+    text-align: center;
+    margin-top: 100px;
+    color: #666;
+    font-size: 1.2em;
+}
+
+.empty-title {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.empty-message {
+    margin-bottom: 20px;
+}
+
 .content-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
