@@ -75,12 +75,11 @@ function SignUp() {
     );
 
     return (
-        <>
+        <div className='signup-page'>
             <Header />
-                <div id="sign-up-content">
+                <div className="signup-content">
                     <div className="signup-card">
                         <div className="signup-header">
-                            <span className="signup-icon">👤</span>
                             <h1 className="signup-title">Sign Up</h1>
                             <p className="signup-subtitle">Create your account to get started</p>
                         </div>
@@ -170,7 +169,7 @@ function SignUp() {
                     </div>
                 </div>
             <Footer />
-        </>
+        </div>
     )
 }
 

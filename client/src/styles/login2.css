@@ -45,15 +45,12 @@ html,body,#root, .login-page, .login-content {
     flex: 1 1 200px;
     border: 1px solid #000000;
     box-shadow: 5px 5px;
-    @media (min-width:768px) {
-        
-    }
 }
 
-.login-card h2 {
+/* .login-card h2 {
     margin-bottom: 20px;
     color: #333333;
-}
+} */
 
 .login-header {
     text-align: center;
