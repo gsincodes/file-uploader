@@ -96,12 +96,11 @@ function CreateFolder() {
     );
 
     return (
-        <>
+        <div id='create-folder-page'>
             <Header />
-            <div className="create-folder-container">
+            <div className="create-folder-content">
                 <div className="create-folder-card">
                     <div className="create-folder-header">
-                        <span className="create-folder-icon">📁</span>
                         <h1 className="create-folder-title">Create a Folder</h1>
                         <p className="create-folder-subtitle">
                             {folderId ? "Create a new subfolder" : "Create a new folder in root"}
@@ -142,7 +141,7 @@ function CreateFolder() {
                 </div>
             </div>
             <Footer />
-        </>
+        </div>
     )
 }
 
