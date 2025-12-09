@@ -111,12 +111,11 @@ function UploadFile() {
     );
 
     return (
-        <>
+        <div id='upload-file-page'>
             <Header />
-                <div className="upload-file-container">
+                <div className="upload-file-content">
                     <div className="upload-card">
                         <div className="upload-header">
-                            <span className="upload-icon">📤</span>
                             <h1 className="upload-title">Upload a File</h1>
                             <p className="upload-subtitle">
                                 {folderId ? "Upload to this folder" : "Upload to root"}
@@ -130,7 +129,6 @@ function UploadFile() {
                             onDrop={handleDrop}
                             onClick={() => document.getElementById('fileInput').click()}
                         >
-                            <span className="upload-icon-large">📁</span>
                             <h3 className="upload-text">
                                 {dragOver ? 'Drop file here' : 'Drag & drop or click to browse'}
                             </h3>
@@ -159,7 +157,6 @@ function UploadFile() {
                             <div className="selected-file-info">
                                 <h4 className="file-info-title">Selected File</h4>
                                 <div className="file-details">
-                                    <span className="file-icon">📄</span>
                                     <div className="file-detail-content">
                                         <h5 className="file-name">{selectedFile.name}</h5>
                                         <p className="file-size">
@@ -189,7 +186,7 @@ function UploadFile() {
                     </div>
                 </div>
             <Footer />
-        </>
+        </div>
     )
 }
 
