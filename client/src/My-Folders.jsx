@@ -74,7 +74,7 @@ function MyFolders() {
     const isEmpty = !hasFolders && !hasFiles;
 
     return (
-        <div className="myfolders-container">
+        <div className="myfolders-page">
             <Header />
             <div className="myfolders-content">
                 <div className="page-header">
@@ -128,9 +128,6 @@ function MyFolders() {
                         {hasFiles && 
                             dataFetched.savedFile.map((file) => (
                                 <div key={file.id} className="file-card">
-                                    <div className="file-icon">
-                                        {file.mimeType?.startsWith('image/') ? '🖼️' : '📄'}
-                                    </div>
                                     <h3 className="file-name">{file.originalName}</h3>
                                     
                                     {file.mimeType?.startsWith('image/') && (
