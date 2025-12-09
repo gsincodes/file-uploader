@@ -14,6 +14,12 @@ html,body,#root, .home-page, .home-content {
     font-family: 'Sf pro', Arial, Helvetica, sans-serif;
 }
 
+/* .home-page{
+    background-color: #ced8eca1;
+    display: grid;
+    grid-template-rows: 50px 1fr 50px;
+} */
+
 .home-content {
     overflow: scroll;
     background-color: #ced8eca1;

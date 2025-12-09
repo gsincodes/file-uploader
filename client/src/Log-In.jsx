@@ -59,7 +59,7 @@ function LogIn() {
     };
 
     if (loading) return (
-        <div className="login-container">
+        <div className="login-content">
             <div className="login-loading-state">
                 <div className="login-loading-spinner"></div>
                 <p className="login-loading-text">Logging in...</p>
@@ -68,12 +68,11 @@ function LogIn() {
     );
 
     return (
-        <>
+        <div className="login-page">
             <Header />
-                <div className="login-container">
+                <div className="login-content">
                     <div className="login-card">
                         <div className="login-header">
-                            <span className="login-icon">🔐</span>
                             <h1 className="login-title">Please Log In</h1>
                             <p className="login-subtitle">Enter your credentials to continue</p>
                         </div>
@@ -133,7 +132,7 @@ function LogIn() {
                     </div>
                 </div>
             <Footer />
-        </>
+        </div>
     )
 }
 
