@@ -10,8 +10,9 @@ html,body,#root, .home-page, .home-content {
     padding: 0;
     width: 100%;
     height: 100%;
-    /* overflow: scroll; */
+    overflow: hidden;
     font-family: 'Sf pro', Arial, Helvetica, sans-serif;
+    /* overflow-x: hidden; */
 }
 
 .home-page{
@@ -20,10 +21,12 @@ html,body,#root, .home-page, .home-content {
 }
 
 .home-content {
-    overflow: scroll;
+    overflow: auto;
     background-color: #ced8eca1;
     /* border-bottom: 1px solid #000000; */
     grid-row: 2/3;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #e0e0e0;
 }
 
 .welcome-section {
