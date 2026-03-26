@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String            @id @default(cuid())
+  email           String            @unique
+  name            String?
+  password        String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  downloads       DownloadHistory[]
+  files           File[]
+  folders         Folder[]
+  userPreferences UserPreferences?
+
+  @@map("users")
+}
+
+model File {
+  id           String            @id @default(cuid())
+  name         String
+  storagePath  String
+  mimeType     String
+  size         Int
+  extension    String
+  bucket       String            @default("uploads")
+  isPublic     Boolean           @default(false)
+  userId       String
+  folderId     String?
+  description  String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  originalName String
+  downloads    DownloadHistory[]
+  folder       Folder?           @relation(fields: [folderId], references: [id])
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([folderId])
+  @@index([mimeType])
+  @@index([createdAt])
+  @@map("files")
+}
+
+model Folder {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  path        String?
+  userId      String
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  folderId    String?
+  parentId    String?
+  files       File[]
+  parent      Folder?  @relation("FolderHierarchy", fields: [parentId], references: [id])
+  children    Folder[] @relation("FolderHierarchy")
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([path])
+  @@map("folders")
+}
+
+model DownloadHistory {
+  id           String   @id @default(cuid())
+  fileId       String
+  userId       String
+  downloadedAt DateTime @default(now())
+  file         File     @relation(fields: [fileId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([fileId])
+  @@index([userId])
+  @@index([downloadedAt])
+  @@map("download_history")
+}
+
+model UserPreferences {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  defaultBucket  String   @default("uploads")
+  maxFileSize    Int      @default(104857600)
+  allowedFormats String[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@map("user_preferences")
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
+}
