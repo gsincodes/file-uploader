@@ -9,9 +9,11 @@ export default defineConfig({
     minify: 'terser'
   },
   server: {
+    host: '0.0.0.0',
+    port: 5173,
     proxy: {
-      '/api': 'http://localhost:3000',
-      '/uploads': 'http://localhost:3000'
+      '/api': 'http://host.docker.internal:3000',
+      '/uploads': 'http://host.docker.internal:3000'
     }
   }
 })
