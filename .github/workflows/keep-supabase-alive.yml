@@ -1,0 +1,15 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: '0 12 */5 * *'
+  workflow_dispatch:
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          curl -I "https://ozfiuivostzcnviueidj.supabase.co/auth/v1/settings" -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}"
+        continue-on-error: true
