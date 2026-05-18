@@ -9,6 +9,12 @@ services:
     networks:
       - fullstack-net
     restart: unless-stopped
+    env_file:
+      - ./server/.env
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
   client:
     build: ./client
     container_name: fileup-client

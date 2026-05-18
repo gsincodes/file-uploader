@@ -12,8 +12,8 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     proxy: {
-      '/api': 'http://host.docker.internal:3000',
-      '/uploads': 'http://host.docker.internal:3000'
+      '/api': 'http://server:3000',
+      '/uploads': 'http://server:3000'
     }
   }
 })
