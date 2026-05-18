@@ -2,17 +2,16 @@ name: Keep Supabase Alive
 
 on:
   schedule:
-    # Runs every 5 days at 12:00 UTC
-    # Cron syntax: minute hour day-of-month month day-of-week
     - cron: '0 12 */5 * *'
-  workflow_dispatch:  # Lets you run it manually from GitHub
+  workflow_dispatch:
 
 jobs:
   ping-supabase:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase REST API
+      - name: Ping Supabase with POST request
         run: |
-          curl -X GET "https://ozfiuivostzcnviueidj.supabase.co/rest/v1/" \
+          curl -X POST "https:// ozfiuivostzcnviueidj.supabase.co/auth/v1/settings" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Content-Type: application/json"
+            -H "Content-Type: application/json" \
+            -d '{}'
